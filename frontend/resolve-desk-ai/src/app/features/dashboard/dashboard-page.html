@@ -1,52 +1,151 @@
 <section class="page">
-    <header class="page__header">
-        <p class="eyebrow">Support operations</p>
-        <h1>Resolve issues with better context</h1>
-        <p class="page__intro">
-            Manage the complete ticket lifecycle and use structured AI
-            suggestions to support prioritization, classification and
-            customer responses.
-        </p>
-    </header>
-
-    <div class="capability-grid">
-        <mat-card appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>Ticket lifecycle</mat-card-title>
-            </mat-card-header>
-
-            <mat-card-content>
-                <p>
-                    Create, filter and manage tickets through Open, In Progress
-                    and Resolved states.
-                </p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>AI-assisted analysis</mat-card-title>
-            </mat-card-header>
-
-            <mat-card-content>
-                <p>
-                    Generate a concise summary, suggested category, priority,
-                    response and missing-information checklist.
-                </p>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>Controlled integration</mat-card-title>
-            </mat-card-header>
-
-            <mat-card-content>
-                <p>
-                    Switch between deterministic MockAI and OpenAI while keeping
-                    the application workflow provider-independent.
-                </p>
-            </mat-card-content>
-        </mat-card>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">AI-assisted support operations</p>
+      <h1>Resolve issues with better context.</h1>
+      <p class="hero__description">
+        Track support requests through their lifecycle and use
+        provider-independent AI to summarize, classify and prepare responses.
+      </p>
     </div>
+
+    <div class="hero__actions">
+      <a mat-flat-button routerLink="/tickets/new">Create ticket</a>
+      <a mat-stroked-button routerLink="/tickets">View tickets</a>
+    </div>
+  </header>
+
+  @if (loading()) {
+  <div class="state-panel">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading dashboard…</p>
+  </div>
+  } @else if (error()) {
+  <mat-card appearance="outlined" class="error-card">
+    <mat-card-content>
+      <h2>Dashboard unavailable</h2>
+      <p>{{ error() }}</p>
+      <button mat-flat-button type="button" (click)="load()">
+        Try again
+      </button>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <section class="metrics" aria-label="Ticket metrics">
+    <a class="metric-link" routerLink="/tickets">
+      <mat-card appearance="outlined" class="metric-card">
+        <mat-card-content>
+          <span class="metric-card__label">Open</span>
+          <strong>{{ openCount() }}</strong>
+          <span>Waiting for action</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a class="metric-link" routerLink="/tickets">
+      <mat-card appearance="outlined" class="metric-card">
+        <mat-card-content>
+          <span class="metric-card__label">In progress</span>
+          <strong>{{ inProgressCount() }}</strong>
+          <span>Currently being handled</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a class="metric-link" routerLink="/tickets">
+      <mat-card appearance="outlined" class="metric-card">
+        <mat-card-content>
+          <span class="metric-card__label">Resolved</span>
+          <strong>{{ resolvedCount() }}</strong>
+          <span>Successfully completed</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a class="metric-link" routerLink="/tickets">
+      <mat-card appearance="outlined" class="metric-card metric-card--urgent">
+        <mat-card-content>
+          <span class="metric-card__label">High priority</span>
+          <strong>{{ urgentCount() }}</strong>
+          <span>High or critical priority</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+  </section>
+
+  <mat-card appearance="outlined" class="recent-card">
+    <mat-card-header>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Live data</p>
+          <mat-card-title>Recent tickets</mat-card-title>
+        </div>
+
+        <a mat-button routerLink="/tickets">View all</a>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (recentTickets().length > 0) {
+      <div class="ticket-list">
+        @for (ticket of recentTickets(); track ticket.id) {
+        <a class="ticket-row" [routerLink]="['/tickets', ticket.id]">
+          <div class="ticket-row__main">
+            <strong>{{ ticket.title }}</strong>
+            <span>{{ ticket.requesterName }}</span>
+          </div>
+
+          <div class="ticket-row__meta">
+            <span class="status">
+              {{ formatStatus(ticket.status) }}
+            </span>
+            <span>{{ ticket.priority }}</span>
+            <time>
+              {{ ticket.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+            </time>
+          </div>
+        </a>
+        }
+      </div>
+      } @else {
+      <div class="empty-state">
+        <h2>No tickets yet</h2>
+        <p>Create the first support request to begin the workflow.</p>
+        <a mat-flat-button routerLink="/tickets/new">
+          Create ticket
+        </a>
+      </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <section class="highlights">
+    <article>
+      <span>01</span>
+      <h2>Ticket lifecycle</h2>
+      <p>
+        Create, classify, update, resolve and safely delete support
+        requests through a complete Angular and ASP.NET Core workflow.
+      </p>
+    </article>
+
+    <article>
+      <span>02</span>
+      <h2>AI-assisted analysis</h2>
+      <p>
+        Generate summaries, categories, priorities and suggested
+        responses through a provider-independent AI boundary.
+      </p>
+    </article>
+
+    <article>
+      <span>03</span>
+      <h2>Persistent and controlled</h2>
+      <p>
+        Store analyses separately, re-run them when needed and invalidate
+        stale results whenever the source content changes.
+      </p>
+    </article>
+  </section>
+  }
 </section>
