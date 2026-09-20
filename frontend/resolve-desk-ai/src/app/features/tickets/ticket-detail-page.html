@@ -32,11 +32,22 @@
         </span>
       </div>
 
-      <a mat-stroked-button [routerLink]="['/tickets', currentTicket.id, 'edit']">
-        Edit ticket
-      </a>
+      <div class="record-actions">
+        <a mat-stroked-button [routerLink]="['/tickets', currentTicket.id, 'edit']">
+          Edit ticket
+        </a>
+
+        <button mat-button class="delete-button" type="button" [disabled]="deleting()"
+          (click)="confirmDelete(currentTicket)">
+          {{ deleting() ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
     </div>
   </header>
+
+  @if (deleteError()) {
+  <p class="delete-error" role="alert">{{ deleteError() }}</p>
+  }
 
   <div class="content-grid">
     <div class="ticket-column">

@@ -42,6 +42,24 @@ h1 {
   gap: 0.75rem;
 }
 
+.record-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-button {
+  color: var(--mat-sys-error);
+}
+
+.delete-error {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--mat-sys-on-error-container);
+  background: var(--mat-sys-error-container);
+}
+
 .ticket-badges {
   display: flex;
   flex-wrap: wrap;

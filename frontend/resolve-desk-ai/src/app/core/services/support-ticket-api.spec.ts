@@ -134,4 +134,25 @@ describe('SupportTicketApi', () => {
 
     request.flush(updatedTicket);
   });
+
+  it('deletes a support ticket', () => {
+    let completed = false;
+
+    service.delete('ticket-1').subscribe({
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    const request = httpTesting.expectOne('/api/tickets/ticket-1');
+
+    expect(request.request.method).toBe('DELETE');
+
+    request.flush(null, {
+      status: 204,
+      statusText: 'No Content',
+    });
+
+    expect(completed).toBe(true);
+  });
 });

@@ -44,6 +44,10 @@ export class SupportTicketApi {
     return this.http.get<SupportTicket>(`${this.baseUrl}/${ticketId}`);
   }
 
+  delete(ticketId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${ticketId}`);
+  }
+
   create(request: CreateSupportTicketRequest): Observable<SupportTicket> {
     return this.http.post<SupportTicket>(this.baseUrl, request);
   }
