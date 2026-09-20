@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.37411.7 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResolveDeskAI.Api", "backend\ResolveDeskAI.Api\ResolveDeskAI.Api.csproj", "{D76643E0-641D-4093-99EA-B6C4F89EE5D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResolveDeskAI.Api.Tests", "backend\ResolveDeskAI.Api.Tests\ResolveDeskAI.Api.Tests.csproj", "{5A65C512-205B-47E9-80F8-239D7E7DE8A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D76643E0-641D-4093-99EA-B6C4F89EE5D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D76643E0-641D-4093-99EA-B6C4F89EE5D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D76643E0-641D-4093-99EA-B6C4F89EE5D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A65C512-205B-47E9-80F8-239D7E7DE8A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A65C512-205B-47E9-80F8-239D7E7DE8A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A65C512-205B-47E9-80F8-239D7E7DE8A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A65C512-205B-47E9-80F8-239D7E7DE8A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
