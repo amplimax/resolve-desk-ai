@@ -1,21 +1,101 @@
 <section class="page">
-    <header class="page__header">
-        <div>
-            <p class="eyebrow">Ticket workspace</p>
-            <h1>Support tickets</h1>
-            <p>
-                Search, filter and manage incoming customer requests.
-            </p>
-        </div>
-    </header>
+  <header class="page__header">
+    <div>
+      <p class="page__eyebrow">Support operations</p>
+      <h1>Support tickets</h1>
+      <p class="page__description">
+        Review incoming requests and their current classification.
+      </p>
+    </div>
 
-    <mat-card appearance="outlined">
-        <mat-card-content>
-            <h2>API integration ready</h2>
-            <p>
-                The next increment will connect this page to the ASP.NET Core
-                ticket API and replace this message with the working table.
-            </p>
-        </mat-card-content>
-    </mat-card>
+    <button mat-stroked-button type="button" [disabled]="loading()" (click)="loadTickets()">
+      Refresh
+    </button>
+  </header>
+
+  @if (loading()) {
+  <div class="state-panel">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading tickets…</p>
+  </div>
+  } @else if (error()) {
+  <mat-card appearance="outlined" class="state-card state-card--error">
+    <mat-card-content>
+      <h2>Connection error</h2>
+      <p>{{ error() }}</p>
+      <button mat-flat-button type="button" (click)="loadTickets()">
+        Try again
+      </button>
+    </mat-card-content>
+  </mat-card>
+  } @else if (tickets().length === 0) {
+  <mat-card appearance="outlined" class="state-card">
+    <mat-card-content>
+      <h2>No tickets found</h2>
+      <p>There are currently no support requests to display.</p>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <mat-card appearance="outlined" class="table-card">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="tickets()" aria-label="Support tickets">
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Ticket</th>
+          <td mat-cell *matCellDef="let ticket">
+            <strong>{{ ticket.title }}</strong>
+            <span class="secondary">{{ ticket.description }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="requester">
+          <th mat-header-cell *matHeaderCellDef>Requester</th>
+          <td mat-cell *matCellDef="let ticket">
+            {{ ticket.requesterName }}
+            <span class="secondary">{{ ticket.requesterEmail }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let ticket">
+            <span class="badge" [class.badge--open]="ticket.status === 'Open'"
+              [class.badge--progress]="ticket.status === 'InProgress'"
+              [class.badge--resolved]="ticket.status === 'Resolved'">
+              {{ ticket.status === 'InProgress' ? 'In progress' : ticket.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="priority">
+          <th mat-header-cell *matHeaderCellDef>Priority</th>
+          <td mat-cell *matCellDef="let ticket">
+            <span class="priority" [class.priority--high]="
+                  ticket.priority === 'High' ||
+                  ticket.priority === 'Critical'
+                ">
+              {{ ticket.priority }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let ticket">
+            {{ formatCategory(ticket.category) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Created</th>
+          <td mat-cell *matCellDef="let ticket">
+            {{ ticket.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </mat-card>
+  }
 </section>
