@@ -1,0 +1,169 @@
+<section class="page">
+    <a mat-button routerLink="/tickets">← Back to tickets</a>
+
+    @if (loading()) {
+    <div class="state-panel">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading ticket…</p>
+    </div>
+    } @else if (error()) {
+    <mat-card appearance="outlined" class="error-card">
+        <mat-card-content>
+            <h1>Ticket unavailable</h1>
+            <p>{{ error() }}</p>
+        </mat-card-content>
+    </mat-card>
+    } @else if (ticket(); as currentTicket) {
+    <header class="ticket-header">
+        <div>
+            <p class="eyebrow">Support ticket</p>
+            <h1>{{ currentTicket.title }}</h1>
+            <p class="ticket-id">{{ currentTicket.id }}</p>
+        </div>
+
+        <div class="ticket-badges">
+            <span class="badge">{{ currentTicket.status }}</span>
+            <span class="badge badge--priority">
+                {{ currentTicket.priority }}
+            </span>
+            <span class="badge badge--category">
+                {{ currentTicket.category }}
+            </span>
+        </div>
+    </header>
+
+    <div class="content-grid">
+        <div class="ticket-column">
+            <mat-card appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Issue details</mat-card-title>
+                </mat-card-header>
+
+                <mat-card-content>
+                    <p class="description">{{ currentTicket.description }}</p>
+
+                    <mat-divider></mat-divider>
+
+                    <dl class="details">
+                        <div>
+                            <dt>Requester</dt>
+                            <dd>{{ currentTicket.requesterName }}</dd>
+                        </div>
+
+                        <div>
+                            <dt>Email</dt>
+                            <dd>{{ currentTicket.requesterEmail }}</dd>
+                        </div>
+
+                        <div>
+                            <dt>Created</dt>
+                            <dd>
+                                {{ currentTicket.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Last updated</dt>
+                            <dd>
+                                {{ currentTicket.updatedAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+                            </dd>
+                        </div>
+                    </dl>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <div class="analysis-column">
+            <mat-card appearance="outlined" class="analysis-card">
+                <mat-card-header>
+                    <div>
+                        <p class="eyebrow">Applied AI</p>
+                        <mat-card-title>Ticket analysis</mat-card-title>
+                    </div>
+                </mat-card-header>
+
+                <mat-card-content>
+                    @if (analysis(); as currentAnalysis) {
+                    <section class="analysis-section">
+                        <h2>Summary</h2>
+                        <p>{{ currentAnalysis.summary }}</p>
+                    </section>
+
+                    <div class="suggestions">
+                        <div>
+                            <span>Suggested category</span>
+                            <strong>{{ currentAnalysis.suggestedCategory }}</strong>
+                        </div>
+
+                        <div>
+                            <span>Suggested priority</span>
+                            <strong>{{ currentAnalysis.suggestedPriority }}</strong>
+                        </div>
+                    </div>
+
+                    <section class="analysis-section">
+                        <h2>Suggested response</h2>
+                        <p class="suggested-response">
+                            {{ currentAnalysis.suggestedResponse }}
+                        </p>
+                    </section>
+
+                    <section class="analysis-section">
+                        <h2>Missing information</h2>
+
+                        @if (currentAnalysis.missingInformation.length > 0) {
+                        <ul>
+                            @for (
+                            information of currentAnalysis.missingInformation;
+                            track information
+                            ) {
+                            <li>{{ information }}</li>
+                            }
+                        </ul>
+                        } @else {
+                        <p>No additional information was identified as necessary.</p>
+                        }
+                    </section>
+
+                    <div class="analysis-meta">
+                        <span>
+                            {{ currentAnalysis.provider }} · {{ currentAnalysis.model }}
+                        </span>
+                        <span>
+                            {{
+                            currentAnalysis.analyzedAtUtc
+                            | date: 'dd/MM/yyyy HH:mm'
+                            }}
+                        </span>
+                    </div>
+                    } @else {
+                    <div class="analysis-empty">
+                        <h2>No analysis available</h2>
+                        <p>
+                            Run the AI assistant to summarize and classify this support
+                            request and prepare a suggested response.
+                        </p>
+                    </div>
+                    }
+
+                    @if (analysisError()) {
+                    <p class="form-error" role="alert">
+                        {{ analysisError() }}
+                    </p>
+                    }
+
+                    <button mat-flat-button type="button" [disabled]="analyzing()" (click)="analyze()">
+                        @if (analyzing()) {
+                        Analyzing…
+                        } @else if (analysis()) {
+                        Run analysis again
+                        } @else {
+                        Run AI analysis
+                        }
+                    </button>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+    }
+</section>

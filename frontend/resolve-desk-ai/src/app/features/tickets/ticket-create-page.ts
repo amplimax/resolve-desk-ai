@@ -58,7 +58,7 @@ export class TicketCreatePage {
         finalize(() => this.submitting.set(false)),
       )
       .subscribe({
-        next: () => void this.router.navigate(['/tickets']),
+        next: (ticket) => void this.router.navigate(['/tickets', ticket.id]),
         error: () => {
           this.error.set('Unable to create the ticket. Verify the entered data and try again.');
         },

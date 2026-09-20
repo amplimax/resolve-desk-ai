@@ -39,6 +39,10 @@ export class SupportTicketApi {
     return this.http.get<SupportTicket[]>(this.baseUrl, { params });
   }
 
+  getById(ticketId: string): Observable<SupportTicket> {
+    return this.http.get<SupportTicket>(`${this.baseUrl}/${ticketId}`);
+  }
+
   create(request: CreateSupportTicketRequest): Observable<SupportTicket> {
     return this.http.post<SupportTicket>(this.baseUrl, request);
   }

@@ -46,7 +46,9 @@
         <ng-container matColumnDef="title">
           <th mat-header-cell *matHeaderCellDef>Ticket</th>
           <td mat-cell *matCellDef="let ticket">
-            <strong>{{ ticket.title }}</strong>
+            <a class="ticket-link" [routerLink]="['/tickets', ticket.id]">
+              {{ ticket.title }}
+            </a>
             <span class="secondary">{{ ticket.description }}</span>
           </td>
         </ng-container>

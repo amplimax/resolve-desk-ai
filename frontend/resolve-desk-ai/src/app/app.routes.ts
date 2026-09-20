@@ -20,6 +20,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'tickets/:id',
+    loadComponent: () =>
+      import('./features/tickets/ticket-detail-page').then(
+        (component) => component.TicketDetailPage,
+      ),
+  },
+  {
     path: 'tickets',
     title: 'Tickets | ResolveDesk AI',
     loadComponent: () =>
