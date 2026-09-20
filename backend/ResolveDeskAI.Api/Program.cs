@@ -85,9 +85,17 @@ namespace ResolveDeskAI.Api
             }
 
             app.UseHttpsRedirection();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapGet(
+                "/api/{**path}",
+                () => Results.NotFound());
+
+            app.MapFallbackToFile("index.html");
 
             app.Run();
         }
