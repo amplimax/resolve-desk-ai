@@ -2,7 +2,11 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { SupportTicket, SupportTicketQuery } from '../models/support-ticket';
+import {
+  CreateSupportTicketRequest,
+  SupportTicket,
+  SupportTicketQuery,
+} from '../models/support-ticket';
 
 @Injectable({
   providedIn: 'root',
@@ -33,5 +37,9 @@ export class SupportTicketApi {
     }
 
     return this.http.get<SupportTicket[]>(this.baseUrl, { params });
+  }
+
+  create(request: CreateSupportTicketRequest): Observable<SupportTicket> {
+    return this.http.post<SupportTicket>(this.baseUrl, request);
   }
 }

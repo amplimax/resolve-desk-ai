@@ -8,9 +8,13 @@
       </p>
     </div>
 
-    <button mat-stroked-button type="button" [disabled]="loading()" (click)="loadTickets()">
-      Refresh
-    </button>
+    <div class="page__actions">
+      <button mat-stroked-button type="button" [disabled]="loading()" (click)="loadTickets()">
+        Refresh
+      </button>
+
+      <a mat-flat-button routerLink="/tickets/new">New ticket</a>
+    </div>
   </header>
 
   @if (loading()) {

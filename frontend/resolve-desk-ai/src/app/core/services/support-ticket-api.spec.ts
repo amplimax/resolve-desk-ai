@@ -49,4 +49,35 @@ describe('SupportTicketApi', () => {
 
     request.flush(tickets);
   });
+
+  it('creates a support ticket', () => {
+    const requestBody = {
+      title: 'Unable to access customer portal',
+      description: 'Authentication fails with valid credentials.',
+      requesterName: 'Laura Bianchi',
+      requesterEmail: 'laura.bianchi@example.com',
+    };
+
+    const createdTicket: SupportTicket = {
+      id: 'ticket-1',
+      ...requestBody,
+      status: 'Open',
+      priority: 'Medium',
+      category: 'Uncategorized',
+      createdAtUtc: '2026-09-20T10:46:56+00:00',
+      updatedAtUtc: '2026-09-20T10:46:56+00:00',
+      resolvedAtUtc: null,
+    };
+
+    service.create(requestBody).subscribe((result) => {
+      expect(result).toEqual(createdTicket);
+    });
+
+    const request = httpTesting.expectOne('/api/tickets');
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(requestBody);
+
+    request.flush(createdTicket);
+  });
 });

@@ -9,10 +9,18 @@ import { finalize } from 'rxjs';
 
 import { SupportTicket } from '../../core/models/support-ticket';
 import { SupportTicketApi } from '../../core/services/support-ticket-api';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-tickets-page',
-  imports: [DatePipe, MatButtonModule, MatCardModule, MatProgressSpinnerModule, MatTableModule],
+  imports: [
+    DatePipe,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    RouterLink,
+  ],
   templateUrl: './tickets-page.html',
   styleUrl: './tickets-page.scss',
 })

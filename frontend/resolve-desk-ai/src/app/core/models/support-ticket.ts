@@ -25,3 +25,10 @@ export interface SupportTicketQuery {
   priority?: TicketPriority;
   category?: TicketCategory;
 }
+
+export interface CreateSupportTicketRequest {
+  title: string;
+  description: string;
+  requesterName: string;
+  requesterEmail: string;
+}

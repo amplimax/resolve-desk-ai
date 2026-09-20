@@ -4,26 +4,29 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'dashboard'
+    redirectTo: 'dashboard',
   },
   {
     path: 'dashboard',
     title: 'Overview | ResolveDesk AI',
     loadComponent: () =>
-      import('./features/dashboard/dashboard-page').then(
-        module => module.DashboardPage
-      )
+      import('./features/dashboard/dashboard-page').then((module) => module.DashboardPage),
+  },
+  {
+    path: 'tickets/new',
+    loadComponent: () =>
+      import('./features/tickets/ticket-create-page').then(
+        (component) => component.TicketCreatePage,
+      ),
   },
   {
     path: 'tickets',
     title: 'Tickets | ResolveDesk AI',
     loadComponent: () =>
-      import('./features/tickets/tickets-page').then(
-        module => module.TicketsPage
-      )
+      import('./features/tickets/tickets-page').then((module) => module.TicketsPage),
   },
   {
     path: '**',
-    redirectTo: 'dashboard'
-  }
+    redirectTo: 'dashboard',
+  },
 ];
