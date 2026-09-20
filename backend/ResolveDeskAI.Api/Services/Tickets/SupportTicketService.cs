@@ -16,12 +16,59 @@ namespace ResolveDeskAI.Api.Services.Tickets
         }
 
         public async Task<IReadOnlyList<SupportTicketResponse>> GetAllAsync(
+            SupportTicketQueryParameters queryParameters,
             CancellationToken cancellationToken)
         {
-            return await _dbContext.SupportTickets
+            var query = _dbContext.SupportTickets
                 .AsNoTracking()
+                .AsQueryable();
+
+            if (queryParameters.Status.HasValue)
+            {
+                query = query.Where(
+                    ticket => ticket.Status == queryParameters.Status.Value);
+            }
+
+            if (queryParameters.Priority.HasValue)
+            {
+                query = query.Where(
+                    ticket =>
+                        ticket.Priority == queryParameters.Priority.Value);
+            }
+
+            if (queryParameters.Category.HasValue)
+            {
+                query = query.Where(
+                    ticket =>
+                        ticket.Category == queryParameters.Category.Value);
+            }
+
+            var search = queryParameters.Search?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(
+                    ticket =>
+                        ticket.Title.Contains(search)
+                        || ticket.Description.Contains(search)
+                        || ticket.RequesterName.Contains(search)
+                        || ticket.RequesterEmail.Contains(search));
+            }
+
+            return await query
                 .OrderByDescending(ticket => ticket.CreatedAtUtc)
-                .Select(ticket => MapToResponse(ticket))
+                .Select(ticket => new SupportTicketResponse(
+                    ticket.Id,
+                    ticket.Title,
+                    ticket.Description,
+                    ticket.RequesterName,
+                    ticket.RequesterEmail,
+                    ticket.Status,
+                    ticket.Priority,
+                    ticket.Category,
+                    ticket.CreatedAtUtc,
+                    ticket.UpdatedAtUtc,
+                    ticket.ResolvedAtUtc))
                 .ToListAsync(cancellationToken);
         }
 

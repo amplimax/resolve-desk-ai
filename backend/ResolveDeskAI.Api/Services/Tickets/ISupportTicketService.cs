@@ -5,6 +5,7 @@ namespace ResolveDeskAI.Api.Services.Tickets
     public interface ISupportTicketService
     {
         Task<IReadOnlyList<SupportTicketResponse>> GetAllAsync(
+            SupportTicketQueryParameters queryParameters,
             CancellationToken cancellationToken);
 
         Task<SupportTicketResponse?> GetByIdAsync(

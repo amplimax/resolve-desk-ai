@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ResolveDeskAI.Api.Contracts.Tickets;
 using ResolveDeskAI.Api.Data;
 using ResolveDeskAI.Api.Domain.Enums;
@@ -12,14 +11,10 @@ namespace ResolveDeskAI.Api.Tests
         [Fact]
         public async Task CreateAsync_PersistsNormalizedTicket()
         {
-            await using var connection =
-                new SqliteConnection("Data Source=:memory:");
-
-            await connection.OpenAsync();
-
             var options =
                 new DbContextOptionsBuilder<ResolveDeskDbContext>()
-                    .UseSqlite(connection)
+                    .UseInMemoryDatabase(
+                        $"ResolveDeskTests-{Guid.NewGuid()}")
                     .Options;
 
             await using var dbContext =
@@ -63,14 +58,10 @@ namespace ResolveDeskAI.Api.Tests
         [Fact]
         public async Task UpdateAsync_ResolvesExistingTicket()
         {
-            await using var connection =
-                new SqliteConnection("Data Source=:memory:");
-
-            await connection.OpenAsync();
-
             var options =
                 new DbContextOptionsBuilder<ResolveDeskDbContext>()
-                    .UseSqlite(connection)
+                    .UseInMemoryDatabase(
+                        $"ResolveDeskTests-{Guid.NewGuid()}")
                     .Options;
 
             await using var dbContext =
@@ -120,14 +111,10 @@ namespace ResolveDeskAI.Api.Tests
         [Fact]
         public async Task DeleteAsync_RemovesExistingTicket()
         {
-            await using var connection =
-                new SqliteConnection("Data Source=:memory:");
-
-            await connection.OpenAsync();
-
             var options =
                 new DbContextOptionsBuilder<ResolveDeskDbContext>()
-                    .UseSqlite(connection)
+                    .UseInMemoryDatabase(
+                        $"ResolveDeskTests-{Guid.NewGuid()}")
                     .Options;
 
             await using var dbContext =
@@ -160,6 +147,74 @@ namespace ResolveDeskAI.Api.Tests
             Assert.True(deleted);
             Assert.False(deletedAgain);
             Assert.Empty(await dbContext.SupportTickets.ToListAsync());
+        }
+
+        [Fact]
+        public async Task GetAllAsync_AppliesCombinedFilters()
+        {
+            var options =
+                new DbContextOptionsBuilder<ResolveDeskDbContext>()
+                    .UseInMemoryDatabase(
+                        $"ResolveDeskTests-{Guid.NewGuid()}")
+                    .Options;
+
+            await using var dbContext =
+                new ResolveDeskDbContext(options);
+
+            await dbContext.Database.EnsureCreatedAsync();
+
+            var service = new SupportTicketService(dbContext);
+
+            var portalTicket = await service.CreateAsync(
+                new CreateSupportTicketRequest
+                {
+                    Title = "Portal timeout",
+                    Description =
+                        "The customer portal stops responding after login.",
+                    RequesterName = "Laura Bianchi",
+                    RequesterEmail = "laura.bianchi@example.com"
+                },
+                CancellationToken.None);
+
+            await service.CreateAsync(
+                new CreateSupportTicketRequest
+                {
+                    Title = "Invoice correction",
+                    Description =
+                        "The customer requested an invoice correction.",
+                    RequesterName = "Marco Rossi",
+                    RequesterEmail = "marco.rossi@example.com"
+                },
+                CancellationToken.None);
+
+            await service.UpdateAsync(
+                portalTicket.Id,
+                new UpdateSupportTicketRequest
+                {
+                    Title = portalTicket.Title,
+                    Description = portalTicket.Description,
+                    RequesterName = portalTicket.RequesterName,
+                    RequesterEmail = portalTicket.RequesterEmail,
+                    Status = TicketStatus.InProgress,
+                    Priority = TicketPriority.High,
+                    Category = TicketCategory.Technical
+                },
+                CancellationToken.None);
+
+            var result = await service.GetAllAsync(
+                new SupportTicketQueryParameters
+                {
+                    Search = "Portal",
+                    Status = TicketStatus.InProgress,
+                    Priority = TicketPriority.High,
+                    Category = TicketCategory.Technical
+                },
+                CancellationToken.None);
+
+            var ticket = Assert.Single(result);
+
+            Assert.Equal(portalTicket.Id, ticket.Id);
+            Assert.Equal("Portal timeout", ticket.Title);
         }
     }
 }

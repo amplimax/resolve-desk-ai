@@ -20,9 +20,11 @@ namespace ResolveDeskAI.Api.Controllers
             StatusCodes.Status200OK)]
         public async Task<ActionResult<
             IReadOnlyList<SupportTicketResponse>>> GetAll(
+            [FromQuery] SupportTicketQueryParameters queryParameters,
             CancellationToken cancellationToken)
         {
             var tickets = await _ticketService.GetAllAsync(
+                queryParameters,
                 cancellationToken);
 
             return Ok(tickets);
