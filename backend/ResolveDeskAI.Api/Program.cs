@@ -1,3 +1,7 @@
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using ResolveDeskAI.Api.Data;
+
 namespace ResolveDeskAI.Api
 {
     public class Program
@@ -6,7 +10,23 @@ namespace ResolveDeskAI.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
+            var connectionString =
+                builder.Configuration.GetConnectionString(
+                    "DefaultConnection")
+                ?? throw new InvalidOperationException(
+                    "Connection string 'DefaultConnection' was not found.");
+
+            builder.Services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(
+                        new JsonStringEnumConverter());
+                });
+
+            builder.Services.AddDbContext<ResolveDeskDbContext>(
+                options => options.UseSqlServer(connectionString));
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
