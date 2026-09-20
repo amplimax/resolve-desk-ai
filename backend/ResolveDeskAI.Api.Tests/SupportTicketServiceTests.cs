@@ -3,6 +3,7 @@ using ResolveDeskAI.Api.Contracts.Tickets;
 using ResolveDeskAI.Api.Data;
 using ResolveDeskAI.Api.Domain.Enums;
 using ResolveDeskAI.Api.Services.Tickets;
+using ResolveDeskAI.Api.Domain.Entities;
 
 namespace ResolveDeskAI.Api.Tests
 {
@@ -106,6 +107,71 @@ namespace ResolveDeskAI.Api.Tests
             Assert.NotNull(updated.ResolvedAtUtc);
             Assert.True(
                 updated.UpdatedAtUtc >= created.UpdatedAtUtc);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_RemovesStaleAnalysisWhenContentChanges()
+        {
+            var options =
+                new DbContextOptionsBuilder<ResolveDeskDbContext>()
+                    .UseInMemoryDatabase(
+                        $"ResolveDeskTests-{Guid.NewGuid()}")
+                    .Options;
+
+            await using var dbContext =
+                new ResolveDeskDbContext(options);
+
+            await dbContext.Database.EnsureCreatedAsync();
+
+            var service = new SupportTicketService(dbContext);
+
+            var created = await service.CreateAsync(
+                new CreateSupportTicketRequest
+                {
+                    Title = "Login problem",
+                    Description =
+                        "The customer cannot access the portal.",
+                    RequesterName = "Laura Bianchi",
+                    RequesterEmail =
+                        "laura.bianchi@example.com"
+                },
+                CancellationToken.None);
+
+            dbContext.TicketAiAnalyses.Add(
+                new TicketAiAnalysis
+                {
+                    SupportTicketId = created.Id,
+                    Summary = "The requester cannot access the portal.",
+                    SuggestedCategory =
+                        TicketCategory.AccountAccess,
+                    SuggestedPriority = TicketPriority.High,
+                    SuggestedResponse =
+                        "We are investigating the authentication issue.",
+                    MissingInformationJson = "[]",
+                    Provider = "MockAI",
+                    Model = "deterministic-v1",
+                    AnalyzedAtUtc = DateTimeOffset.UtcNow
+                });
+
+            await dbContext.SaveChangesAsync();
+
+            var updated = await service.UpdateAsync(
+                created.Id,
+                new UpdateSupportTicketRequest
+                {
+                    Title = "Login problem after password reset",
+                    Description = created.Description,
+                    RequesterName = created.RequesterName,
+                    RequesterEmail = created.RequesterEmail,
+                    Status = created.Status,
+                    Priority = created.Priority,
+                    Category = created.Category
+                },
+                CancellationToken.None);
+
+            Assert.NotNull(updated);
+            Assert.Empty(
+                await dbContext.TicketAiAnalyses.ToListAsync());
         }
 
         [Fact]

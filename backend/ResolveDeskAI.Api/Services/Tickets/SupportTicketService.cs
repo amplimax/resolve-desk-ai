@@ -118,6 +118,7 @@ namespace ResolveDeskAI.Api.Services.Tickets
             CancellationToken cancellationToken)
         {
             var ticket = await _dbContext.SupportTickets
+                .Include(ticket => ticket.AiAnalysis)
                 .SingleOrDefaultAsync(
                     ticket => ticket.Id == id,
                     cancellationToken);
@@ -127,10 +128,29 @@ namespace ResolveDeskAI.Api.Services.Tickets
                 return null;
             }
 
+            var title = request.Title.Trim();
+            var description = request.Description.Trim();
+
+            var analysisIsStale =
+                !string.Equals(
+                    ticket.Title,
+                    title,
+                    StringComparison.Ordinal)
+                || !string.Equals(
+                    ticket.Description,
+                    description,
+                    StringComparison.Ordinal);
+
+            if (analysisIsStale && ticket.AiAnalysis is not null)
+            {
+                _dbContext.TicketAiAnalyses.Remove(ticket.AiAnalysis);
+                ticket.AiAnalysis = null;
+            }
+
             var now = DateTimeOffset.UtcNow;
 
-            ticket.Title = request.Title.Trim();
-            ticket.Description = request.Description.Trim();
+            ticket.Title = title;
+            ticket.Description = description;
             ticket.RequesterName = request.RequesterName.Trim();
             ticket.RequesterEmail = request.RequesterEmail
                 .Trim()
