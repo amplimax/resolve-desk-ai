@@ -36,6 +36,12 @@ h1 {
   font-size: 0.78rem;
 }
 
+.ticket-header__actions {
+  display: grid;
+  justify-items: end;
+  gap: 0.75rem;
+}
+
 .ticket-badges {
   display: flex;
   flex-wrap: wrap;
@@ -195,6 +201,10 @@ dd {
 @media (max-width: 640px) {
   .ticket-header {
     flex-direction: column;
+  }
+
+  .ticket-header__actions {
+    justify-items: start;
   }
 
   .ticket-badges {

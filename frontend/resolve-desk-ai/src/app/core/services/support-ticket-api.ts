@@ -6,6 +6,7 @@ import {
   CreateSupportTicketRequest,
   SupportTicket,
   SupportTicketQuery,
+  UpdateSupportTicketRequest,
 } from '../models/support-ticket';
 
 @Injectable({
@@ -45,5 +46,9 @@ export class SupportTicketApi {
 
   create(request: CreateSupportTicketRequest): Observable<SupportTicket> {
     return this.http.post<SupportTicket>(this.baseUrl, request);
+  }
+
+  update(ticketId: string, request: UpdateSupportTicketRequest): Observable<SupportTicket> {
+    return this.http.put<SupportTicket>(`${this.baseUrl}/${ticketId}`, request);
   }
 }

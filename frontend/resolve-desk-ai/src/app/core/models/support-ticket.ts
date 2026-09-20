@@ -32,3 +32,9 @@ export interface CreateSupportTicketRequest {
   requesterName: string;
   requesterEmail: string;
 }
+
+export interface UpdateSupportTicketRequest extends CreateSupportTicketRequest {
+  status: TicketStatus;
+  priority: TicketPriority;
+  category: TicketCategory;
+}

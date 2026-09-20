@@ -20,6 +20,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'tickets/:id/edit',
+    loadComponent: () =>
+      import('./features/tickets/ticket-edit-page').then((component) => component.TicketEditPage),
+  },
+  {
     path: 'tickets/:id',
     loadComponent: () =>
       import('./features/tickets/ticket-detail-page').then(
