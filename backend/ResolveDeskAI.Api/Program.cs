@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ResolveDeskAI.Api.Data;
 using ResolveDeskAI.Api.Services.Tickets;
 using ResolveDeskAI.Api.Services.AI;
+using Microsoft.Extensions.Options;
+using ResolveDeskAI.Api.Configuration;
 
 namespace ResolveDeskAI.Api
 {
@@ -33,9 +35,39 @@ namespace ResolveDeskAI.Api
                 ISupportTicketService,
                 SupportTicketService>();
 
-            builder.Services.AddSingleton<
-                ITicketAnalyzer,
-                MockTicketAnalyzer>();
+            builder.Services.Configure<AiOptions>(
+                builder.Configuration.GetSection(
+                    AiOptions.SectionName));
+
+            builder.Services.AddSingleton<MockTicketAnalyzer>();
+            builder.Services.AddSingleton<OpenAiTicketAnalyzer>();
+
+            builder.Services.AddSingleton<ITicketAnalyzer>(
+                serviceProvider =>
+                {
+                    var options = serviceProvider
+                        .GetRequiredService<IOptions<AiOptions>>()
+                        .Value;
+
+                    if (options.Provider.Equals(
+                        "OpenAI",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        return serviceProvider
+                            .GetRequiredService<OpenAiTicketAnalyzer>();
+                    }
+
+                    if (options.Provider.Equals(
+                        "MockAI",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        return serviceProvider
+                            .GetRequiredService<MockTicketAnalyzer>();
+                    }
+
+                    throw new InvalidOperationException(
+                        $"Unsupported AI provider '{options.Provider}'.");
+                });
 
             builder.Services.AddScoped<
                 ITicketAnalysisService,
