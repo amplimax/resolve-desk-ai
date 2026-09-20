@@ -14,6 +14,9 @@ namespace ResolveDeskAI.Api.Data
         public DbSet<SupportTicket> SupportTickets =>
             Set<SupportTicket>();
 
+        public DbSet<TicketAiAnalysis> TicketAiAnalyses =>
+            Set<TicketAiAnalysis>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

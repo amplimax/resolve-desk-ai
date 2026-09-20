@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using ResolveDeskAI.Api.Data;
 using ResolveDeskAI.Api.Services.Tickets;
+using ResolveDeskAI.Api.Services.AI;
 
 namespace ResolveDeskAI.Api
 {
@@ -31,6 +32,14 @@ namespace ResolveDeskAI.Api
             builder.Services.AddScoped<
                 ISupportTicketService,
                 SupportTicketService>();
+
+            builder.Services.AddSingleton<
+                ITicketAnalyzer,
+                MockTicketAnalyzer>();
+
+            builder.Services.AddScoped<
+                ITicketAnalysisService,
+                TicketAnalysisService>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

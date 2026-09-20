@@ -82,6 +82,76 @@ namespace ResolveDeskAI.Api.Data.Migrations
 
                     b.ToTable("SupportTickets", (string)null);
                 });
+
+            modelBuilder.Entity("ResolveDeskAI.Api.Domain.Entities.TicketAiAnalysis", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AnalyzedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("MissingInformationJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SuggestedCategory")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("SuggestedPriority")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("SuggestedResponse")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("SupportTicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupportTicketId")
+                        .IsUnique();
+
+                    b.ToTable("TicketAiAnalyses", (string)null);
+                });
+
+            modelBuilder.Entity("ResolveDeskAI.Api.Domain.Entities.TicketAiAnalysis", b =>
+                {
+                    b.HasOne("ResolveDeskAI.Api.Domain.Entities.SupportTicket", "SupportTicket")
+                        .WithOne("AiAnalysis")
+                        .HasForeignKey("ResolveDeskAI.Api.Domain.Entities.TicketAiAnalysis", "SupportTicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SupportTicket");
+                });
+
+            modelBuilder.Entity("ResolveDeskAI.Api.Domain.Entities.SupportTicket", b =>
+                {
+                    b.Navigation("AiAnalysis");
+                });
 #pragma warning restore 612, 618
         }
     }

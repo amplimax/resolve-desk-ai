@@ -28,5 +28,7 @@ namespace ResolveDeskAI.Api.Domain.Entities
             DateTimeOffset.UtcNow;
 
         public DateTimeOffset? ResolvedAtUtc { get; set; }
+
+        public TicketAiAnalysis? AiAnalysis { get; set; }
     }
 }
