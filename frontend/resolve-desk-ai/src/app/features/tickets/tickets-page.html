@@ -17,6 +17,66 @@
     </div>
   </header>
 
+  <mat-card appearance="outlined" class="filter-card">
+    <mat-card-content>
+      <form class="filter-form" [formGroup]="filters" (ngSubmit)="applyFilters()">
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input matInput formControlName="search" placeholder="Title, description or requester" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">All statuses</mat-option>
+
+            @for (status of statuses; track status) {
+            <mat-option [value]="status">
+              {{ formatStatus(status) }}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option value="">All priorities</mat-option>
+
+            @for (priority of priorities; track priority) {
+            <mat-option [value]="priority">
+              {{ priority }}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            <mat-option value="">All categories</mat-option>
+
+            @for (category of categories; track category) {
+            <mat-option [value]="category">
+              {{ formatCategory(category) }}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="filter-actions">
+          <button mat-button type="button" (click)="resetFilters()">
+            Reset
+          </button>
+
+          <button mat-flat-button type="submit" [disabled]="loading()">
+            Apply
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
   @if (loading()) {
   <div class="state-panel">
     <mat-spinner diameter="40"></mat-spinner>
@@ -67,7 +127,7 @@
             <span class="badge" [class.badge--open]="ticket.status === 'Open'"
               [class.badge--progress]="ticket.status === 'InProgress'"
               [class.badge--resolved]="ticket.status === 'Resolved'">
-              {{ ticket.status === 'InProgress' ? 'In progress' : ticket.status }}
+              {{ formatStatus(ticket.status) }}
             </span>
           </td>
         </ng-container>

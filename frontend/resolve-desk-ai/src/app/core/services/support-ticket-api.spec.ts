@@ -80,4 +80,27 @@ describe('SupportTicketApi', () => {
 
     request.flush(createdTicket);
   });
+
+  it('sends combined ticket filters as query parameters', () => {
+    service
+      .getAll({
+        search: ' portal ',
+        status: 'Open',
+        priority: 'High',
+        category: 'AccountAccess',
+      })
+      .subscribe((result) => {
+        expect(result).toEqual([]);
+      });
+
+    const request = httpTesting.expectOne((candidate) => candidate.url === '/api/tickets');
+
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('search')).toBe('portal');
+    expect(request.request.params.get('status')).toBe('Open');
+    expect(request.request.params.get('priority')).toBe('High');
+    expect(request.request.params.get('category')).toBe('AccountAccess');
+
+    request.flush([]);
+  });
 });
