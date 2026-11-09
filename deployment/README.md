@@ -18,7 +18,8 @@ dal pannello dell'hosting.
 
 1. Aggiornare `main` con `git pull --ff-only` e verificare che il workflow GitHub
    del commit da pubblicare sia verde.
-2. Aprire `ResolveDeskAI.sln`. Servono .NET 9 SDK, Node.js 24 e npm nel `PATH`.
+2. Aprire `ResolveDeskAI.sln`. Servono .NET 9 SDK, Node.js 24 e npm 11.6.2 nel `PATH`
+   (la stessa versione npm è impostata nella pipeline).
 3. Sul progetto `ResolveDeskAI.Api`, scegliere **Pubblica** e il profilo
    `amplimax-001-subsite7 - Web Deploy` già configurato per SmarterASP.NET.
 4. Controllare destinazione, configurazione **Release**, ambiente Production e

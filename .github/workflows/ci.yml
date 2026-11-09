@@ -19,6 +19,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: frontend/resolve-desk-ai/package-lock.json
+      - name: Use the project's npm version
+        run: npm install --global npm@11.6.2 --no-audit --no-fund
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x

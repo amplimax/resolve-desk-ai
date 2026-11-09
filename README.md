@@ -185,7 +185,7 @@ category
 - .NET 9 SDK
 - SQL Server LocalDB or another SQL Server instance
 - Node.js 24
-- npm 11
+- npm 11.6.2 (also pinned in CI)
 
 ### 1. Restore and prepare the backend
 
