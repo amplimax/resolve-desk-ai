@@ -1,7 +1,7 @@
 # ResolveDesk AI frontend
 
 Angular 21 with a prerendered public presentation and a client-rendered support
-ticket demo. Requires Node.js 24 and npm 11.6.2, also pinned in CI.
+ticket demo. Requires Node.js 24 and npm 11.6.2.
 
 ## Development
 

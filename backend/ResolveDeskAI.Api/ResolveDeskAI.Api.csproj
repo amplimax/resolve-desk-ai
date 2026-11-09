@@ -18,12 +18,10 @@
   </ItemGroup>
 
   <Target Name="PublishFrontend" AfterTargets="ComputeFilesToPublish">
-    <Exec WorkingDirectory="$(FrontendRoot)" Command="npm ci --no-audit --no-fund"
-          Condition="'$(SkipFrontendBuild)' != 'true'" />
-    <Exec WorkingDirectory="$(FrontendRoot)" Command="npm run build:backend"
-          Condition="'$(SkipFrontendBuild)' != 'true'" />
+    <Exec WorkingDirectory="$(FrontendRoot)" Command="npm ci --no-audit --no-fund" />
+    <Exec WorkingDirectory="$(FrontendRoot)" Command="npm run build:backend" />
     <Error Condition="!Exists('wwwroot/index.html') Or !Exists('wwwroot/index.csr.html') Or !Exists('wwwroot/not-found/index.html')"
-           Text="Frontend assets are missing. Run npm run build:backend or publish without SkipFrontendBuild." />
+           Text="Frontend assets are missing after the frontend build." />
     <ItemGroup>
       <FrontendFiles Include="$(MSBuildProjectDirectory)\wwwroot\**\*" />
       <ResolvedFileToPublish Include="@(FrontendFiles)">

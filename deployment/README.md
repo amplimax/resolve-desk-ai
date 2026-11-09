@@ -4,11 +4,8 @@
 
 Il sito `https://resolvedeskai.anywaresolutions.eu/` è ospitato su SmarterASP.NET/IIS.
 Il repository è [amplimax/resolve-desk-ai](https://github.com/amplimax/resolve-desk-ai),
-branch `main`. Il 9 novembre 2026 non risultavano workflow o webhook di deploy
-preesistenti. Il workflow `Build and test` è un controllo facoltativo, avviabile
-solo manualmente con **Run workflow**. Esegue test, build e preparazione di un
-pacchetto; non parte su push o pull request e non è necessario per pubblicare.
-**La pubblicazione avviene su SmarterASP.NET; il push su GitHub non pubblica il sito.**
+branch `main`. GitHub conserva i sorgenti; **la pubblicazione avviene su
+SmarterASP.NET tramite Visual Studio/Web Deploy o upload del pacchetto**.
 
 In questa postazione esistono i profili Visual Studio locali
 `amplimax-001-subsite7 - Web Deploy` e `amplimax-001-subsite7 - FTP`, nella cartella
@@ -18,10 +15,8 @@ dal pannello dell'hosting.
 
 ## Pubblicare con Visual Studio
 
-1. Aggiornare `main` con `git pull --ff-only`. Non serve avviare o attendere una
-   pipeline GitHub per pubblicare.
-2. Aprire `ResolveDeskAI.sln`. Servono .NET 9 SDK, Node.js 24 e npm 11.6.2 nel `PATH`
-   (la stessa versione npm è impostata nella pipeline).
+1. Aggiornare `main` con `git pull --ff-only`.
+2. Aprire `ResolveDeskAI.sln`. Servono .NET 9 SDK, Node.js 24 e npm 11.6.2 nel `PATH`.
 3. Sul progetto `ResolveDeskAI.Api`, scegliere **Pubblica** e il profilo
    `amplimax-001-subsite7 - Web Deploy` già configurato per SmarterASP.NET.
 4. Controllare destinazione, configurazione **Release**, ambiente Production e
@@ -34,7 +29,7 @@ dal pannello dell'hosting.
 
 Questa modifica non richiede migrazioni del database.
 
-## Pacchetto da terminale o GitHub
+## Pacchetto da terminale
 
 Dalla radice del repository:
 
@@ -43,10 +38,6 @@ dotnet publish backend/ResolveDeskAI.Api/ResolveDeskAI.Api.csproj --configuratio
 ```
 
 Il comando costruisce frontend e backend e prepara una cartella pronta per IIS.
-Solo se si desidera generare il pacchetto su GitHub, avviare **GitHub → Actions →
-Build and test → Run workflow** su `main`. A esecuzione riuscita, scaricare
-**resolvedeskai-site**. Questa alternativa manuale non è un passaggio del normale
-publish da Visual Studio a SmarterASP.NET.
 
 Distribuire il pacchetto nella root dell'applicazione su SmarterASP.NET con Web
 Deploy o con l'upload del provider, conservando impostazioni Production e segreti
@@ -64,12 +55,11 @@ npm ci --prefix frontend/resolve-desk-ai
 npm test --prefix frontend/resolve-desk-ai -- --watch=false
 npm run build:backend --prefix frontend/resolve-desk-ai
 dotnet test ResolveDeskAI.sln --configuration Release
-dotnet publish backend/ResolveDeskAI.Api/ResolveDeskAI.Api.csproj --configuration Release --output artifacts/site -p:SkipFrontendBuild=true
 ```
 
-Usare `SkipFrontendBuild=true` solo con una build frontend già aggiornata. I test
-HTTP richiedono i file reali in `wwwroot` e usano un database isolato in memoria,
-senza modificare dati di produzione o chiamare servizi AI esterni.
+I test HTTP richiedono i file reali in `wwwroot` e usano un database isolato in
+memoria, senza modificare dati di produzione o chiamare servizi AI esterni.
+Dopo i controlli, pubblicare con Visual Studio o con il comando della sezione precedente.
 
 ## Verifica dopo la pubblicazione
 
@@ -118,7 +108,10 @@ Il server restituisce veri `404` per evitare i
 
 `wwwroot`, `dist`, `node_modules`, `bin`, `obj` e `artifacts` sono output generati,
 esclusi da Git. La build sostituisce il solo `wwwroot` generato, eliminando i vecchi
-bundle. Conservare migrazioni, configurazioni e profili locali di pubblicazione.
+bundle. Dopo una pulizia locale, `dotnet publish` o la pubblicazione da Visual
+Studio reinstallano le dipendenze e rigenerano gli asset necessari. Per lavorare
+con `npm start`, eseguire prima `npm ci`. Conservare migrazioni, configurazioni e
+profili locali di pubblicazione.
 
 Per nuove rotte demo aggiornare `app.routes.ts`, `Hosting/WebsiteEndpoints.cs` e
 i test HTTP. Per nuove pagine pubbliche aggiornare anche prerendering, metadati,

@@ -131,7 +131,6 @@ Requester name and email address remain outside the AI request.
 
 ```text
 ResolveDeskAI.sln
-.github/workflows/ci.yml
 backend/
 |-- ResolveDeskAI.Api/
 |   |-- Configuration/
@@ -185,7 +184,7 @@ category
 - .NET 9 SDK
 - SQL Server LocalDB or another SQL Server instance
 - Node.js 24
-- npm 11.6.2 (also pinned in CI)
+- npm 11.6.2
 
 ### 1. Restore and prepare the backend
 
@@ -365,16 +364,12 @@ The Visual Studio publish profile uses:
 Database migrations are applied independently through the idempotent SQL
 script, keeping schema deployment explicit and reviewable.
 
-The optional GitHub Actions workflow runs only when explicitly started with
-**Run workflow**. It checks tests and produces the `resolvedeskai-site` artifact;
-pushes and pull requests do not start it. It does **not** upload to SmarterASP.NET
-and is not required for publication. Publish using Visual Studio/Web Deploy or
-the hosting upload procedure.
+GitHub stores the source code. Publish to SmarterASP.NET using Visual Studio/Web
+Deploy or the hosting upload procedure.
 
 `dotnet publish` and Visual Studio publication automatically install locked frontend
 dependencies, prerender the public pages and include generated assets. Node.js 24
-and npm must be available on the publishing machine. CI reuses its tested build
-with `-p:SkipFrontendBuild=true`.
+and npm must be available on the publishing machine.
 
 See [the deployment and Google indexing guide](deployment/README.md) for release
 commands, existing profiles, post-deployment checks and Search Console steps.
