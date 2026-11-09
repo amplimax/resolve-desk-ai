@@ -365,10 +365,11 @@ The Visual Studio publish profile uses:
 Database migrations are applied independently through the idempotent SQL
 script, keeping schema deployment explicit and reviewable.
 
-GitHub Actions runs tests and produces the `resolvedeskai-site` deployment artifact
-on pushes to `main`, pull requests and manual runs. It does **not** upload to
-SmarterASP.NET. Publication remains a separate Visual Studio/Web Deploy or hosting
-upload step.
+The optional GitHub Actions workflow runs only when explicitly started with
+**Run workflow**. It checks tests and produces the `resolvedeskai-site` artifact;
+pushes and pull requests do not start it. It does **not** upload to SmarterASP.NET
+and is not required for publication. Publish using Visual Studio/Web Deploy or
+the hosting upload procedure.
 
 `dotnet publish` and Visual Studio publication automatically install locked frontend
 dependencies, prerender the public pages and include generated assets. Node.js 24

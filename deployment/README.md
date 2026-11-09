@@ -5,8 +5,10 @@
 Il sito `https://resolvedeskai.anywaresolutions.eu/` è ospitato su SmarterASP.NET/IIS.
 Il repository è [amplimax/resolve-desk-ai](https://github.com/amplimax/resolve-desk-ai),
 branch `main`. Il 9 novembre 2026 non risultavano workflow o webhook di deploy
-preesistenti. Il workflow `Build and test` ora incluso esegue test, build e
-preparazione del pacchetto: **il push su GitHub non pubblica il sito**.
+preesistenti. Il workflow `Build and test` è un controllo facoltativo, avviabile
+solo manualmente con **Run workflow**. Esegue test, build e preparazione di un
+pacchetto; non parte su push o pull request e non è necessario per pubblicare.
+**La pubblicazione avviene su SmarterASP.NET; il push su GitHub non pubblica il sito.**
 
 In questa postazione esistono i profili Visual Studio locali
 `amplimax-001-subsite7 - Web Deploy` e `amplimax-001-subsite7 - FTP`, nella cartella
@@ -16,8 +18,8 @@ dal pannello dell'hosting.
 
 ## Pubblicare con Visual Studio
 
-1. Aggiornare `main` con `git pull --ff-only` e verificare che il workflow GitHub
-   del commit da pubblicare sia verde.
+1. Aggiornare `main` con `git pull --ff-only`. Non serve avviare o attendere una
+   pipeline GitHub per pubblicare.
 2. Aprire `ResolveDeskAI.sln`. Servono .NET 9 SDK, Node.js 24 e npm 11.6.2 nel `PATH`
    (la stessa versione npm è impostata nella pipeline).
 3. Sul progetto `ResolveDeskAI.Api`, scegliere **Pubblica** e il profilo
@@ -41,9 +43,10 @@ dotnet publish backend/ResolveDeskAI.Api/ResolveDeskAI.Api.csproj --configuratio
 ```
 
 Il comando costruisce frontend e backend e prepara una cartella pronta per IIS.
-In alternativa, da **GitHub → Actions → Build and test**, aprire il run verde del
-commit desiderato e scaricare **resolvedeskai-site**. È disponibile anche
-**Run workflow** su `main`.
+Solo se si desidera generare il pacchetto su GitHub, avviare **GitHub → Actions →
+Build and test → Run workflow** su `main`. A esecuzione riuscita, scaricare
+**resolvedeskai-site**. Questa alternativa manuale non è un passaggio del normale
+publish da Visual Studio a SmarterASP.NET.
 
 Distribuire il pacchetto nella root dell'applicazione su SmarterASP.NET con Web
 Deploy o con l'upload del provider, conservando impostazioni Production e segreti
