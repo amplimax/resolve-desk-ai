@@ -5,8 +5,10 @@ ASP.NET Core, Angular and SQL Server. It combines a conventional operational
 workflow with provider-independent AI analysis that helps classify incoming
 tickets, summarize their content and prepare a suggested response.
 
-**Live application:**
+**Public presentation:**
 [resolvedeskai.anywaresolutions.eu](https://resolvedeskai.anywaresolutions.eu/)
+
+**Interactive demo:** [Open the dashboard](https://resolvedeskai.anywaresolutions.eu/dashboard)
 
 ## Overview
 
@@ -38,6 +40,8 @@ current.
 - persisted AI summaries, classifications and suggested responses;
 - automatic invalidation of stale analyses after title or description changes;
 - responsive Angular Material interface;
+- prerendered public presentation with a canonical URL, robots.txt and sitemap;
+- non-indexable demo routes and real HTTP 404 responses for missing pages and tickets;
 - unified deployment in which ASP.NET Core serves both the API and Angular SPA;
 - health endpoint and development-only Swagger/OpenAPI documentation.
 
@@ -45,7 +49,8 @@ current.
 
 ```mermaid
 flowchart TD
-    UI["Angular SPA"] --> API["ASP.NET Core Web API"]
+    HOME["Prerendered public home"] --> WEB["ASP.NET Core hosting"]
+    UI["Angular demo SPA"] --> API["ASP.NET Core Web API"]
     API --> TS["Ticket services"]
     TS --> EF["Entity Framework Core"]
     EF --> DB["SQL Server"]
@@ -117,14 +122,16 @@ Requester name and email address remain outside the AI request.
 
 - xUnit
 - ASP.NET Core integration testing support
-- EF Core InMemory and SQLite test providers
+- EF Core InMemory test provider
 - Angular unit tests
 - Angular `HttpTestingController`
+- HTTP integration tests for metadata, crawl directives and 404 responses
 
 ## Repository structure
 
 ```text
 ResolveDeskAI.sln
+.github/workflows/ci.yml
 backend/
 |-- ResolveDeskAI.Api/
 |   |-- Configuration/
@@ -132,6 +139,7 @@ backend/
 |   |-- Controllers/
 |   |-- Data/
 |   |-- Domain/
+|   |-- Hosting/
 |   |-- Services/
 |   `-- wwwroot/
 `-- ResolveDeskAI.Api.Tests/
@@ -140,11 +148,13 @@ frontend/
     |-- scripts/
     `-- src/
 deployment/
+|-- README.md
 `-- ResolveDeskAI.Migrations.sql
 ```
 
-`backend/ResolveDeskAI.Api/wwwroot` contains the production Angular build so
-that a single ASP.NET Core application can serve both the API and the SPA.
+`backend/ResolveDeskAI.Api/wwwroot` is generated and ignored by Git. It contains
+the prerendered presentation, static error page and Angular demo assets so one
+ASP.NET Core application can serve the whole site. Do not edit generated files.
 
 ## API endpoints
 
@@ -188,7 +198,14 @@ dotnet ef database update \
   --startup-project backend/ResolveDeskAI.Api/ResolveDeskAI.Api.csproj
 ```
 
-Run the API:
+Build the website once before running the unified site:
+
+```bash
+npm ci --prefix frontend/resolve-desk-ai
+npm run build:backend --prefix frontend/resolve-desk-ai
+```
+
+Run the API and website:
 
 ```bash
 dotnet run --project backend/ResolveDeskAI.Api/ResolveDeskAI.Api.csproj
@@ -207,12 +224,13 @@ The default configuration uses `MockAI`, so no external API key is required.
 
 ```bash
 cd frontend/resolve-desk-ai
-npm install
+npm ci
 npm start
 ```
 
 The development proxy forwards `/api` and `/health` to the ASP.NET Core HTTPS
-endpoint.
+endpoint. Use the Angular server for UI work; validate production HTTP status
+codes against ASP.NET Core, which owns the website route rules.
 
 ### 3. Use OpenAI locally
 
@@ -229,11 +247,16 @@ profile selects the OpenAI provider while the secret supplies the API key.
 
 ## Build and test
 
-### Backend
+### Full validation
+
+Build the frontend first: the website integration tests inspect the actual generated
+HTML. From the repository root:
 
 ```bash
-dotnet build ResolveDeskAI.sln
-dotnet test ResolveDeskAI.sln
+npm ci --prefix frontend/resolve-desk-ai
+npm test --prefix frontend/resolve-desk-ai -- --watch=false
+npm run build:backend --prefix frontend/resolve-desk-ai
+dotnet test ResolveDeskAI.sln --configuration Release
 ```
 
 ### Frontend
@@ -258,8 +281,29 @@ This command builds Angular and copies the generated browser assets into:
 backend/ResolveDeskAI.Api/wwwroot
 ```
 
-ASP.NET Core serves the static files and uses `index.html` as the SPA fallback,
-while `/api` remains reserved for controller endpoints.
+Angular prerenders `/` and `/not-found` at build time. The copy script removes
+scripts from the HTTP error page so it works at any missing URL without trying
+to hydrate a ticket component. No Node.js process runs in production.
+
+### Public routing and indexing
+
+| URL | HTTP response | Indexing |
+|---|---|---|
+| `/` | `200`, prerendered presentation | `index, follow`; canonical `https://resolvedeskai.anywaresolutions.eu/` |
+| `/index.html` | `301` to `/` | Consolidated on the home URL |
+| `/dashboard`, `/tickets`, `/tickets/new` | `200`, Angular demo shell | `noindex, follow` in HTML and `X-Robots-Tag` |
+| `/tickets/{guid}`, `/tickets/{guid}/edit` | `200` if the ticket exists; otherwise `404` | `noindex, follow` |
+| `/robots.txt`, `/sitemap.xml` | `200`, public files | Sitemap lists only `/` |
+| Unknown URLs, missing assets, `/not-found` | `404`, static error page | `noindex, follow` |
+| `/api/*`, `/health` | API responses; unknown APIs return `404` | `X-Robots-Tag: noindex, follow` |
+
+There is no catch-all successful SPA fallback. The server admits known demo routes,
+checks ticket existence, and returns `404` elsewhere. Angular's wildcard displays
+an error instead of redirecting to the dashboard. Navigation updates title,
+robots metadata and canonical together.
+
+`robots.txt` permits crawling, including demo pages: Google must fetch a page to
+read `noindex`. See [Google's noindex documentation](https://developers.google.com/search/docs/crawling-indexing/block-indexing).
 
 ## Configuration
 
@@ -301,9 +345,9 @@ The production application is hosted on SmarterASP.NET as a single ASP.NET Core
 site:
 
 ```text
-Angular build
+Angular prerender + demo build
 -> ASP.NET Core wwwroot
--> REST API and SPA
+-> Public presentation, REST API and demo
 -> SQL Server
 -> OpenAI
 ```
@@ -320,6 +364,20 @@ The Visual Studio publish profile uses:
 
 Database migrations are applied independently through the idempotent SQL
 script, keeping schema deployment explicit and reviewable.
+
+GitHub Actions runs tests and produces the `resolvedeskai-site` deployment artifact
+on pushes to `main`, pull requests and manual runs. It does **not** upload to
+SmarterASP.NET. Publication remains a separate Visual Studio/Web Deploy or hosting
+upload step.
+
+`dotnet publish` and Visual Studio publication automatically install locked frontend
+dependencies, prerender the public pages and include generated assets. Node.js 24
+and npm must be available on the publishing machine. CI reuses its tested build
+with `-p:SkipFrontendBuild=true`.
+
+See [the deployment and Google indexing guide](deployment/README.md) for release
+commands, existing profiles, post-deployment checks and Search Console steps.
+This SEO change does not require a database migration.
 
 ## Project scope
 

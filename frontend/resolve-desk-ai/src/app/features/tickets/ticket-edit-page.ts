@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -138,7 +139,11 @@ export class TicketEditPage {
             category: ticket.category,
           });
         },
-        error: () => {
+        error: (failure: HttpErrorResponse) => {
+          if (failure.status === 404) {
+            void this.router.navigate(['/not-found'], { replaceUrl: true });
+            return;
+          }
           this.error.set('The requested ticket could not be loaded.');
         },
       });

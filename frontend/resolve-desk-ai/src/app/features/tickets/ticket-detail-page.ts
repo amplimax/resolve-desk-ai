@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -140,7 +141,11 @@ export class TicketDetailPage {
           this.ticket.set(ticket);
           this.analysis.set(analysis);
         },
-        error: () => {
+        error: (failure: HttpErrorResponse) => {
+          if (failure.status === 404) {
+            void this.router.navigate(['/not-found'], { replaceUrl: true });
+            return;
+          }
           this.error.set('The requested ticket could not be loaded.');
         },
       });

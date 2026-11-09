@@ -94,6 +94,10 @@
 }
 
 @media (max-width: 640px) {
+  .brand {
+    gap: 8px;
+  }
+
   .brand__tagline {
     display: none;
   }

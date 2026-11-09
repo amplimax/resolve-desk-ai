@@ -5,6 +5,7 @@ using ResolveDeskAI.Api.Services.Tickets;
 using ResolveDeskAI.Api.Services.AI;
 using Microsoft.Extensions.Options;
 using ResolveDeskAI.Api.Configuration;
+using ResolveDeskAI.Api.Hosting;
 
 namespace ResolveDeskAI.Api
 {
@@ -85,17 +86,15 @@ namespace ResolveDeskAI.Api
             }
 
             app.UseHttpsRedirection();
-            app.UseDefaultFiles();
+            app.UseWebsiteIndexing();
             app.UseStaticFiles();
+            // Serve real assets before selecting the catch-all 404 endpoint.
+            app.UseRouting();
             app.UseAuthorization();
 
             app.MapControllers();
 
-            app.MapGet(
-                "/api/{**path}",
-                () => Results.NotFound());
-
-            app.MapFallbackToFile("index.html");
+            app.MapWebsite();
 
             app.Run();
         }

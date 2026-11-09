@@ -1,10 +1,16 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment } from '@angular/router';
+
+const hasTicketId = (_route: unknown, segments: UrlSegment[]) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segments[1]?.path ?? '');
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'dashboard',
+    title: 'ResolveDesk AI | AI-assisted support ticket management',
+    data: { indexable: true },
+    loadComponent: () =>
+      import('./features/landing/landing-page').then((module) => module.LandingPage),
   },
   {
     path: 'dashboard',
@@ -14,6 +20,7 @@ export const routes: Routes = [
   },
   {
     path: 'tickets/new',
+    title: 'Create ticket | ResolveDesk AI',
     loadComponent: () =>
       import('./features/tickets/ticket-create-page').then(
         (component) => component.TicketCreatePage,
@@ -21,11 +28,15 @@ export const routes: Routes = [
   },
   {
     path: 'tickets/:id/edit',
+    title: 'Edit ticket | ResolveDesk AI',
+    canMatch: [hasTicketId],
     loadComponent: () =>
       import('./features/tickets/ticket-edit-page').then((component) => component.TicketEditPage),
   },
   {
     path: 'tickets/:id',
+    title: 'Ticket details | ResolveDesk AI',
+    canMatch: [hasTicketId],
     loadComponent: () =>
       import('./features/tickets/ticket-detail-page').then(
         (component) => component.TicketDetailPage,
@@ -38,7 +49,15 @@ export const routes: Routes = [
       import('./features/tickets/tickets-page').then((module) => module.TicketsPage),
   },
   {
+    path: 'not-found',
+    title: 'Page not found | ResolveDesk AI',
+    loadComponent: () =>
+      import('./features/not-found/not-found-page').then((module) => module.NotFoundPage),
+  },
+  {
     path: '**',
-    redirectTo: 'dashboard',
+    title: 'Page not found | ResolveDesk AI',
+    loadComponent: () =>
+      import('./features/not-found/not-found-page').then((module) => module.NotFoundPage),
   },
 ];

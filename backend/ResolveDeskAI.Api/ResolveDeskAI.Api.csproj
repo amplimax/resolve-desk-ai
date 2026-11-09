@@ -8,6 +8,32 @@
     <UserSecretsId>659bc138-eb20-4b4a-a70a-b92de347d82c</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <FrontendRoot>$(MSBuildProjectDirectory)/../../frontend/resolve-desk-ai</FrontendRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Generated assets are collected after rebuilding, including on a clean clone. -->
+    <Content Remove="wwwroot\**" />
+  </ItemGroup>
+
+  <Target Name="PublishFrontend" AfterTargets="ComputeFilesToPublish">
+    <Exec WorkingDirectory="$(FrontendRoot)" Command="npm ci --no-audit --no-fund"
+          Condition="'$(SkipFrontendBuild)' != 'true'" />
+    <Exec WorkingDirectory="$(FrontendRoot)" Command="npm run build:backend"
+          Condition="'$(SkipFrontendBuild)' != 'true'" />
+    <Error Condition="!Exists('wwwroot/index.html') Or !Exists('wwwroot/index.csr.html') Or !Exists('wwwroot/not-found/index.html')"
+           Text="Frontend assets are missing. Run npm run build:backend or publish without SkipFrontendBuild." />
+    <ItemGroup>
+      <FrontendFiles Include="$(MSBuildProjectDirectory)\wwwroot\**\*" />
+      <ResolvedFileToPublish Include="@(FrontendFiles)">
+        <RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.20">
       <PrivateAssets>all</PrivateAssets>
